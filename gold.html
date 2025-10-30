@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes">
+    <title>Gold</title>
+	<style>
+	.red { color: red; }
+	.green { color: green; }
+	</style>
+</head>
+<body>
+本金：<input id="int1" value="77000"/><br/>
+克重：<input id="int2" value="81.5741"/><br/>
+当前：<input id="int3" value="913.59"/><br/>
+买入：<input id="int4" value="5000"/><br/>
+<button id="btn1">计算</button>&nbsp;&nbsp;<button id="btn2">还原</button>
+<div id="dayh1"></div>
+<script>
+		
+		function getDay1() {
+			var int1 = parseFloat(document.getElementById("int1").value);
+			var int2 = parseFloat(document.getElementById("int2").value);
+			var int3 = parseFloat(document.getElementById("int3").value);
+			var int4 = parseFloat(document.getElementById("int4").value);
+			
+			// 成本价
+			var cal1 = int1 / int2;
+			var str1 = "成本价：" + cal1 + "元/克<br/>";
+			document.getElementById("dayh1").innerHTML += str1;
+			
+			// 市场价
+			var cal3 = int2 * int3;
+			document.getElementById("dayh1").innerHTML += "市场价：" + cal3 + "元<br/>";
+
+			// 买入后成本价
+			var cal2 = (int1 + int4) / (int2 + (int4 / int3));
+			var str2 = "买入后成本价：" + cal2 + "元/克<br/>";
+			document.getElementById("dayh1").innerHTML += str2;
+
+			// 买入后市场价
+			var cal4 = cal3 + int4;
+			document.getElementById("dayh1").innerHTML += "买入后市场价：" + cal4 + "元<br/><br/>";
+
+			document.getElementById("int1").value = (int1 + int4);
+			document.getElementById("int2").value = (int2 + (int4 / int3));
+
+		}
+		document.getElementById("btn1").onclick = function() {
+			getDay1();
+		}
+		document.getElementById("btn2").onclick = function() {
+			document.getElementById("int1").value = 77000;
+			document.getElementById("int2").value = 81.5741;
+			//document.getElementById("int3").value = 913.59;
+			//document.getElementById("int4").value = 5000;
+			document.getElementById("dayh1").innerHTML = "";
+		}
+	</script>
+</body>
+</html>
