@@ -11,6 +11,11 @@
 	</style>
 </head>
 <body>
+人民币/美元汇率：<input id="int11" value="7.1022"/><br/>
+美元/盎司：<input id="int22" value="4000"/><br/>
+人民币/克：<input id="int33" value="1000"/><br/>
+<button id="btn11">计算人民币</button>&nbsp;&nbsp;<button id="btn22">计算美元</button>
+<br/><br/>
 本金：<input id="int1" value="77000"/><br/>
 克重：<input id="int2" value="81.5741"/><br/>
 当前：<input id="int3" value="913.59"/><br/>
@@ -56,6 +61,20 @@
 			//document.getElementById("int3").value = 913.59;
 			//document.getElementById("int4").value = 5000;
 			document.getElementById("dayh1").innerHTML = "";
+		}
+
+		document.getElementById("btn11").onclick = function() {
+			var int11 = parseFloat(document.getElementById("int11").value);
+			var int22 = parseFloat(document.getElementById("int22").value);
+			var res = int22 * int11 / 31.1034768;
+			document.getElementById("int33").value = res;
+
+		}
+		document.getElementById("btn22").onclick = function() {
+			var int11 = parseFloat(document.getElementById("int11").value);
+			var int33 = parseFloat(document.getElementById("int33").value);
+			var res = int33 / int11 * 31.1034768;
+			document.getElementById("int22").value = res;
 		}
 	</script>
 </body>
