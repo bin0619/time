@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes">
+	<title>健康打卡</title>
+<script src='dist/index.global.js'></script>
+<script>
+document.write("<script type='text/javascript' src='jsonData2.js?v=" + new Date().getTime() + "'><\/script>");
+</script>
+<script>
+window.alert = function(name){
+	var iframe = document.createElement("IFRAME");
+	iframe.style.display="none";
+	iframe.setAttribute("src", 'data:text/plain,');
+	document.documentElement.appendChild(iframe);
+	window.frames[0].window.alert(name);
+	iframe.parentNode.removeChild(iframe);
+};
+var resourcesDate = [
+      { id: 'a', title: '优质睡眠', eventColor: '#67C23A', score: 20  },
+      { id: 'b', title: '良好睡眠', eventColor: '#E6A23C', score: 5  },
+      { id: 'c', title: '运动加油',eventColor: '#409EFF', score: 30 },
+      { id: 'd', title: '日常禁食', eventColor: '#F56C6C', score: 1  },
+	  { id: 'e', title: '夜宵禁食', eventColor: '#909399', score: 1  },
+	  { id: 'f', title: '高糖奶茶', eventColor: '#C689FD', score: 1  },
+	  { id: 'z', title: '数据异常', eventColor: 'red', score: 0  },
+    ];
+function isNullOrEmpty(val) {
+    if (typeof (val) == "undefined" || val == null || val.length == 0) {
+        return true;
+    }
+    return false;
+}
+function createEvents() {
+	var resultList = [];
+	if (jsonData.length > 0)
+	{
+		for(var i=0; i < jsonData.length; i++) 
+		{
+			if(jsonData[i].date && jsonData[i].title && !isNullOrEmpty(jsonData[i].date) && jsonData[i].title.length > 0) 
+			{
+				for(var j=0; j < jsonData[i].title.length; j++) 
+				{
+					var data = new Object();
+					data.start = jsonData[i].date;
+					data.end = jsonData[i].date;
+					data.overlap = true;
+					var flist = resourcesDate.filter(d => { return d.title == jsonData[i].title[j] });
+					if (flist.length > 0)
+					{
+						data.resourceId = flist[0].id;
+						data.title = flist[0].title;
+					} 
+					else 
+					{
+						data.resourceId = "z";
+						data.title = "数据异常";
+					}
+					resultList.push(data);
+				}
+			}
+		}
+	}
+	return resultList;
+}
+// 当月合计
+function currentMonthSum() {
+	var now = new Date(); // 获取当前日期时间
+	var monthStart = new Date(now.getFullYear(), now.getMonth(), 1); // 获取本月第一天的日期时间
+	var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); // 获取本月最后一天的日期时间（时间为23:59:59）
+	var dateSum = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); // 本月多少天
+
+	scoreSum(monthStart, monthEnd, dateSum);
+}
+
+// 上月合计
+function lastMonthSum() {
+	var now = new Date(); // 获取当前日期时间
+	var last = new Date(now.getFullYear(), now.getMonth() - 1); // 获取上月日期时间
+	var monthStart = new Date(last.getFullYear(), last.getMonth(), 1); // 获取上月第一天的日期时间
+	var monthEnd = new Date(last.getFullYear(), last.getMonth() + 1, 0, 23, 59, 59); // 获取上月最后一天的日期时间（时间为23:59:59）
+	var dateSum = new Date(last.getFullYear(), last.getMonth() + 1, 0).getDate(); // 上月多少天
+	
+	scoreSum(monthStart, monthEnd, dateSum);
+}
+function milkTeaYearSum() {
+	var now = new Date(); // 获取当前日期时间
+	
+	var nowStart = new Date(now.getFullYear(), 0, 1); // 获取今年第一天日期时间
+	var nowEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59); // 获取今年最后一天日期时间
+	var lastStart = new Date(now.getFullYear() - 1, 0, 1); // 获取去年第一天日期时间
+	var lastEnd = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59); // 获取去年最后一天日期时间
+	
+	var msg = milkTeaSum(lastStart, lastEnd);
+	msg = msg + "\r\n" + milkTeaSum(nowStart, nowEnd);
+	alert(msg);
+}
+
+function scoreSum(monthStart, monthEnd, dateSum) {
+	var msg = (monthStart.getMonth() + 1) + "月合计\r\n";
+	var sum = 0;
+	if (jsonData.length > 0)
+	{
+		var flist = jsonData.filter(d => { 
+			var dd = new Date(d.date);
+			return (dd.getTime() >= monthStart.getTime() && dd.getTime() <= monthEnd.getTime());
+		});
+		if (flist.length > 0) 
+		{
+			var total = 0;
+			for (var i = 0; i < resourcesDate.length; i++) 
+			{
+				var title = resourcesDate[i].title;
+				
+				var rlist = flist.filter(d => { return (d.title.indexOf(title) !== -1); });
+				if (rlist.length > 0) 
+				{
+					total = total + rlist.length;
+					// 奶茶
+					if (title == "高糖奶茶")
+					{
+						msg = msg + title + "：共" + rlist.length + "次\r\n";
+					}
+					// 日常禁食
+					else if (title == "日常禁食")
+					{
+						msg = msg + title + "：共" + rlist.length + "次";
+						if (rlist.length >= dateSum)
+						{
+							sum = sum + 250;
+							msg = msg + "，积分：250分\r\n";
+						} 
+						else if (rlist.length >= (dateSum-3) && rlist.length < dateSum) 
+						{
+							sum = sum + 150;
+							msg = msg + "，积分：150分\r\n";
+						} 
+						else 
+						{
+							msg = msg + "\r\n";
+						}
+					}
+					// 夜宵禁食
+					else if (title == "夜宵禁食")
+					{
+						msg = msg + title + "：共" + rlist.length + "次";
+						if (rlist.length >= dateSum)
+						{
+							sum = sum + 250;
+							msg = msg + "，积分：250分\r\n";
+						} 
+						else if (rlist.length >= (dateSum-1) && rlist.length < dateSum) 
+						{
+							sum = sum + 190;
+							msg = msg + "，积分：190分\r\n";
+						} 
+						else if (rlist.length >= (dateSum-2) && rlist.length < dateSum) 
+						{
+							sum = sum + 170;
+							msg = msg + "，积分：170分\r\n";
+						} 
+						else if (rlist.length >= (dateSum-3) && rlist.length < dateSum) 
+						{
+							sum = sum + 150;
+							msg = msg + "，积分：150分\r\n";
+						} 
+						else 
+						{
+							msg = msg + "\r\n";
+						}
+					}
+					else 
+					{
+						sum = sum + (rlist.length * resourcesDate[i].score);
+						msg = msg + title + "：共" + rlist.length + "次，积分：" + (rlist.length * resourcesDate[i].score) + "分\r\n";
+					}
+				}
+			}
+			var flistTotal = 0;
+			for (var i = 0; i < flist.length; i++) {
+				flistTotal = flistTotal + flist[i].title.length;
+			}
+			if (total != flistTotal) 
+			{
+				// 数据异常
+				msg = msg + "数据异常：共" + (flistTotal - total) + "次\r\n";
+			}
+		}
+	}
+	msg = msg + "总积分：" + sum + "分";
+	alert(msg);
+}
+
+function milkTeaSum(dateStart, dateEnd) {
+	var msg = dateStart.getFullYear() + "年合计\r\n";
+	var title = "高糖奶茶";
+	if (jsonData.length > 0)
+	{
+		var flist = jsonData.filter(d => { 
+			var dd = new Date(d.date);
+			return (dd.getTime() >= dateStart.getTime() && dd.getTime() <= dateEnd.getTime());
+		});
+		if (flist.length > 0) 
+		{
+			var rlist = flist.filter(d => { return (d.title.indexOf(title) !== -1); });
+			if (rlist.length > 0) 
+			{
+				msg = msg + title + "：共" + rlist.length + "次\r\n";
+			}
+			else 
+			{
+				msg = msg + title + "：共0次\r\n";
+			}
+		}
+		else 
+		{
+			msg = msg + title + "：共0次\r\n";
+		}
+	}
+	return msg;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  
+  var eventData = createEvents();
+  
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    locale: 'zh-cn',
+    height: '90%',
+    aspectRatio: 1.8,
+    //now: '2023-01-07',
+    scrollTime: '00:00', // undo default 6am scrollTime
+	buttonText: {/* 设置按钮文字 */
+        today: '今天',
+        month: '月视图',
+        week: '周视图',
+        day: '日视图',
+        list: '周列表',
+      },
+    headerToolbar: {
+      left: 'today',
+      center: 'title',
+      right: 'prev,next'
+    },
+    initialView: 'dayGridMonth',
+    views: {
+      resourceTimelineThreeDays: {
+        type: 'resourceTimeline',
+        duration: { days: 3 },
+        buttonText: '3 days'
+      }
+    },
+	editable: false,
+    expandRows: true,
+	displayEventTime: false,
+    resourceAreaHeaderContent: 'Rooms',
+    resources: resourcesDate,
+    events: eventData,
+  });
+
+  calendar.render();
+});
+function showRule() {
+	alert("优质睡眠：23点前入睡（20分/次）\r\n" +
+    "良好睡眠：24点前入睡（5分/次）\r\n" +
+    "运动加油：爬山、爬楼、瑜伽、跑步、椭圆机（持续45分钟，30分/次）\r\n" +
+    "日常禁食：不喝带汽的饮料、冰淇淋、外面买的麻辣烫、鸭头、鸭脖、鸡头、鸡脖（150分/普通全勤、250分/完美全勤）\r\n" +
+    "夜宵禁食：20点之后不吃东西，只能中杯奶茶无糖（150分/普通全勤、170分/良好全勤、190分/优秀全勤、250分/完美全勤）\r\n\r\n" +
+	"PS:积分每月1日0点清零\r\n" +
+	"普通全勤：一个月不大于3次\r\n" +
+	"良好全勤：一个月不大于2次\r\n" +
+	"优秀全勤：一个月不大于1次\r\n" +
+	"完美全勤：一个月0次");
+}
+function openBtn() {
+	alert("功能开发中，敬请期待~");
+}
+</script>
+<style>
+
+  html, body {
+    overflow: hidden; /* don't do scrollbars */
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 14px;
+  }
+
+  #calendar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .fc-header-toolbar {
+    /*
+    the calendar will be butting up against the edges,
+    but let's scoot in the header's buttons
+    */
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .footBtn {
+	position: fixed; /* 固定在屏幕上 */
+    bottom: 8px; /* 距离底部为0像素 */
+    left: 0; /* 左边界与视口左侧对齐 */
+    width: 100%; /* 宽度等于视口宽度 */
+  }
+  .footBtn button {
+	display:inline; 
+	width:33%; 
+	height: 40px;
+	margin:1px !important;
+  }
+  .fc-button-success,.fc-today-button {
+	color: #fff;
+    background-color: #3C8DBC !important;
+    border-color: #3C8DBC !important;
+  }
+  .fc .fc-toolbar-title {
+	margin-left: 30px;
+  }
+</style>
+</head>
+<body>
+
+  <div id='calendar-container'>
+    <div id='calendar'></div>
+  </div>
+  <div class="footBtn fc" style="flex-direction: inherit">
+	<button class="fc-button fc-button-primary" onclick='showRule()'>积分规则</button>
+	<button class="fc-button fc-button-success" onclick='milkTeaYearSum()'>奶茶合计</button>
+	<button class="fc-button fc-button-success" onclick='lastMonthSum()'>上月合计</button>
+	<button class="fc-button fc-button-success" onclick='currentMonthSum()'>本月合计</button>
+  </div>
+</body>
+</html>
