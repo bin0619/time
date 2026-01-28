@@ -121,7 +121,7 @@ function scoreSum(monthStart, monthEnd, dateSum) {
 					// 奶茶
 					if (title == "高糖奶茶")
 					{
-						msg = msg + title + "：共" + rlist.length + "次\r\n";
+						msg = msg + title + "：共" + rlist.length + "杯\r\n";
 					}
 					// 日常禁食
 					else if (title == "日常禁食")
@@ -207,16 +207,16 @@ function milkTeaSum(dateStart, dateEnd) {
 			var rlist = flist.filter(d => { return (d.title.indexOf(title) !== -1); });
 			if (rlist.length > 0) 
 			{
-				msg = msg + title + "：共" + rlist.length + "次\r\n";
+				msg = msg + title + "：共" + rlist.length + "杯\r\n";
 			}
 			else 
 			{
-				msg = msg + title + "：共0次\r\n";
+				msg = msg + title + "：共0杯\r\n";
 			}
 		}
 		else 
 		{
-			msg = msg + title + "：共0次\r\n";
+			msg = msg + title + "：共0杯\r\n";
 		}
 	}
 	return msg;
@@ -268,7 +268,8 @@ function showRule() {
     "良好睡眠：24点前入睡（5分/次）\r\n" +
     "运动加油：爬山、爬楼、瑜伽、跑步、椭圆机（持续45分钟，30分/次）\r\n" +
     "日常禁食：不喝带汽的饮料、冰淇淋、外面买的麻辣烫、鸭头、鸭脖、鸡头、鸡脖（150分/普通全勤、250分/完美全勤）\r\n" +
-    "夜宵禁食：20点之后不吃东西，只能中杯奶茶无糖（150分/普通全勤、170分/良好全勤、190分/优秀全勤、250分/完美全勤）\r\n\r\n" +
+    "夜宵禁食：20点之后不吃东西，只能中杯奶茶无糖（150分/普通全勤、170分/良好全勤、190分/优秀全勤、250分/完美全勤）\r\n" +
+	"高糖奶茶：一年不能大于50杯\r\n\r\n" +
 	"PS:积分每月1日0点清零\r\n" +
 	"普通全勤：一个月不大于3次\r\n" +
 	"良好全勤：一个月不大于2次\r\n" +
